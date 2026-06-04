@@ -121,6 +121,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
+    // OTP codes for 2FA — authed user can read/write their own code doc.
+    match /otpCodes/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // ─── Default deny ─────────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

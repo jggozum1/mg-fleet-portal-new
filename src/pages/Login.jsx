@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { defaultRouteForRole } from '../lib/roles'
+import { OTP_ENABLED } from '../lib/otp'
 
 export default function Login() {
-  const { user, profile, profileError, loading, login, logout, isFirebaseConfigured } = useAuth()
+  const { user, profile, profileError, loading, login, logout, isFirebaseConfigured, otpVerified } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -14,10 +15,14 @@ export default function Login() {
 
   useEffect(() => {
     if (!loading && user && profile) {
-      const dest = location.state?.from?.pathname || defaultRouteForRole(profile.role)
-      navigate(dest, { replace: true })
+      if (OTP_ENABLED && !otpVerified) {
+        navigate('/otp-verify', { replace: true })
+      } else {
+        const dest = location.state?.from?.pathname || defaultRouteForRole(profile.role)
+        navigate(dest, { replace: true })
+      }
     }
-  }, [loading, user, profile, navigate, location.state])
+  }, [loading, user, profile, otpVerified, navigate, location.state])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@getbrevo/brevo": "^5.0.4",
     "firebase": "^11.0.2",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",

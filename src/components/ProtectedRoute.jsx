@@ -1,9 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { defaultRouteForRole, getRoleInfo, hasPermission } from '../lib/roles'
+import { OTP_ENABLED } from '../lib/otp'
 
 export default function ProtectedRoute({ children, allowedCategories, requireAdmin, requiredPermission }) {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, otpVerified } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -16,6 +17,10 @@ export default function ProtectedRoute({ children, allowedCategories, requireAdm
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  if (OTP_ENABLED && !otpVerified) {
+    return <Navigate to="/otp-verify" replace />
   }
 
   if (requireAdmin && (!profile || !profile.is_admin)) {

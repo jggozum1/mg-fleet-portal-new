@@ -50,6 +50,7 @@ import More from './pages/More'
 import LandingSignups from './pages/LandingSignups'
 import LandingContacts from './pages/LandingContacts'
 import FixUser from './pages/FixUser'
+import OtpVerify from './pages/OtpVerify'
 
 const INTERNAL = ['internal']
 const CUSTOMER = ['customer']
@@ -62,6 +63,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/otp-verify" element={<OtpVerify />} />
         <Route path="/fix-user" element={<FixUser />} />
         <Route path="/auth/complete" element={<AuthComplete />} />
 

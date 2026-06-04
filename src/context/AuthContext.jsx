@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebas
 import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from '../lib/firebase'
 import { promotePendingToUser } from '../lib/users'
+import { isSessionVerified, clearSessionVerified } from '../lib/otp'
 
 const AuthContext = createContext(null)
 
@@ -50,6 +51,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [profileError, setProfileError] = useState(null)
   const [loading, setLoading] = useState(isFirebaseConfigured)
+  const [otpVerified, setOtpVerified] = useState(isSessionVerified)
 
   useEffect(() => {
     if (!isFirebaseConfigured) return
@@ -90,11 +92,15 @@ export function AuthProvider({ children }) {
     }
     return signInWithEmailAndPassword(auth, email, password)
   }
-  const logout = () => (isFirebaseConfigured ? signOut(auth) : Promise.resolve())
+  const logout = () => {
+    clearSessionVerified()
+    setOtpVerified(false)
+    return isFirebaseConfigured ? signOut(auth) : Promise.resolve()
+  }
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, profileError, loading, login, logout, isFirebaseConfigured }}
+      value={{ user, profile, profileError, loading, login, logout, isFirebaseConfigured, otpVerified, setOtpVerified }}
     >
       {children}
     </AuthContext.Provider>
