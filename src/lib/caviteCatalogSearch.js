@@ -25,6 +25,8 @@ import {
 } from 'firebase/firestore'
 import { db } from './firebase'
 import { getAllBrands, getAllModels } from './refVehicles'
+import { searchBranchLabor } from './branchServices'
+import { searchBranchParts } from './branchParts'
 
 // ── In-session caches ─────────────────────────────────────────────────────
 
@@ -203,7 +205,24 @@ export async function searchPartsAndConsumables({ makeId, modelId, term }) {
 
 // Convenience: the autocomplete's debounced fetcher picks the right
 // search function based on the row's `type` field.
-export async function searchSuggestions({ type, makeId, modelId, term }) {
-  if (type === 'Labor') return searchLabor({ makeId, modelId, term })
+//
+// When `branchCode` is provided, Labor searches hit `branchServices`
+// first (flat per-branch pricing). Falls back to the vehicle-specific
+// caviteServices catalog if branchServices returns nothing.
+export async function searchSuggestions({ type, makeId, modelId, term, branchCode }) {
+  if (type === 'Labor') {
+    // Try branch-specific services first
+    if (branchCode) {
+      const branchResults = await searchBranchLabor({ branchCode, term })
+      if (branchResults.length > 0) return branchResults
+    }
+    // Fallback to vehicle-specific Cavite catalog
+    return searchLabor({ makeId, modelId, term })
+  }
+  // Parts/Materials: try branch-specific parts first, fall back to Cavite catalog
+  if (branchCode) {
+    const branchResults = await searchBranchParts({ branchCode, term })
+    if (branchResults.length > 0) return branchResults
+  }
   return searchPartsAndConsumables({ makeId, modelId, term })
 }

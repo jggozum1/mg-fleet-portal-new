@@ -148,6 +148,8 @@ function CustomerMenu({ profile }) {
             <Row to="/admin/users" icon="user" label="Users" />
             <Row to="/admin/vehicle-catalog" icon="car" label="Vehicle Catalog" />
             <Row to="/admin/cavite-catalog" icon="doc" label="Price Catalog" />
+            <Row to="/admin/branch-services" icon="doc" label="Branch Services" />
+            <Row to="/admin/branch-parts" icon="doc" label="Branch Parts" />
           </div>
         </>
       )}
@@ -215,6 +217,8 @@ function StaffMenu({ profile }) {
             <Row to="/admin/users" icon="user" label="Users" />
             <Row to="/admin/vehicle-catalog" icon="car" label="Vehicle Catalog" />
             <Row to="/admin/cavite-catalog" icon="doc" label="Price Catalog" />
+            <Row to="/admin/branch-services" icon="doc" label="Branch Services" />
+            <Row to="/admin/branch-parts" icon="doc" label="Branch Parts" />
           </div>
         </>
       )}

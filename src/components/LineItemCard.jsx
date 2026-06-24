@@ -17,14 +17,13 @@ import { formatMoney } from '../lib/dummyData'
 import { searchSuggestions } from '../lib/caviteCatalogSearch'
 import Icon from './ui/Icon'
 
-// Round 35 — autocomplete now queries the Cavite catalog
-// (caviteServices / caviteParts / caviteConsumables) filtered by
-// vehicleMakeId + vehicleModelId. Falls back to the hand-curated
-// PARTS_CATALOG seed when neither vehicle ID nor a typed search
-// term yields catalog results.
+// Autocomplete queries branchServices / branchParts first (branch-specific
+// pricing), falls back to caviteServices / caviteParts / caviteConsumables
+// (vehicle-specific Cavite catalog), then the hand-curated PARTS_CATALOG
+// seed when no catalog results are found.
 export default function LineItemCard({
   index, row, onChange, onRemove, canRemove, showRevisionTag = false,
-  vehicleMakeId, vehicleModelId,
+  vehicleMakeId, vehicleModelId, branchCode,
 }) {
   const [showAuto, setShowAuto] = useState(false)
   const [suggestions, setSuggestions] = useState([])
@@ -41,6 +40,7 @@ export default function LineItemCard({
           makeId: vehicleMakeId,
           modelId: vehicleModelId,
           term: row.description || '',
+          branchCode,
         })
         if (cancelled) return
         // If the live catalog returned nothing AND the user has typed
@@ -67,7 +67,7 @@ export default function LineItemCard({
       }
     }, 200)
     return () => { cancelled = true; clearTimeout(handle) }
-  }, [row.type, row.description, vehicleMakeId, vehicleModelId])
+  }, [row.type, row.description, vehicleMakeId, vehicleModelId, branchCode])
 
   const pick = (p) => {
     onChange({ description: p.name, unitCost: p.unitCost || p.srp })
@@ -209,6 +209,8 @@ export default function LineItemCard({
 // which catalog produced each row.
 function SourceTag({ source }) {
   const config = {
+    'branch-service': { label: 'Branch',      cls: 'bg-violet-100 text-violet-800' },
+    'branch-part':    { label: 'Branch Part', cls: 'bg-violet-100 text-violet-800' },
     service:    { label: 'Service',    cls: 'bg-sky-100 text-sky-800' },
     part:       { label: 'Part',       cls: 'bg-amber-100 text-amber-800' },
     consumable: { label: 'Universal',  cls: 'bg-emerald-100 text-emerald-800' },

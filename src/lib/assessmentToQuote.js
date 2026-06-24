@@ -27,6 +27,8 @@ import {
   LABOR_TYPE_MAP, PMS_MAP, getAction,
 } from './mgfms-catalog'
 import { searchLabor, searchPartsAndConsumables } from './caviteCatalogSearch'
+import { searchBranchLabor } from './branchServices'
+import { searchBranchParts } from './branchParts'
 
 // Stable category order so the generated quote reads like a service order
 // (Engine → Brakes → Suspension → Electrical → Tires → Body → ...).
@@ -271,19 +273,18 @@ export function summarizeAssessmentForQuote(assessment) {
   }
 }
 
-// Round 37 — auto-price prefill rows against the live Cavite catalog.
-// Given the suggestion items + the vehicle's cavite IDs, fuzzy-match
-// each row's description against caviteServices (Labor) or
-// caviteParts + caviteConsumables (Parts/Materials) and stamp the
-// SRP onto unitCost. Rows with no catalog match keep unitCost at 0
-// for the user to fill manually.
+// Round 37 — auto-price prefill rows against the catalog.
+// When `branchCode` is provided, Labor lines are priced from
+// `branchServices` first (flat per-branch pricing). Falls back to
+// the vehicle-specific Cavite catalog if no branch match is found.
+// Parts/Materials still use the Cavite catalog (vehicle-specific).
 //
 // Returns the items array with prices populated. Async because the
 // catalog search reads from Firestore.
-export async function enrichItemsWithCatalogPrices(items, { makeId, modelId } = {}) {
+export async function enrichItemsWithCatalogPrices(items, { makeId, modelId, branchCode } = {}) {
   if (!Array.isArray(items) || items.length === 0) return items
-  // No vehicle IDs → nothing to filter against. Skip.
-  if (!Number.isFinite(makeId) || !Number.isFinite(modelId)) return items
+  // Need either branchCode or vehicle IDs to look up prices.
+  if (!branchCode && (!Number.isFinite(makeId) || !Number.isFinite(modelId))) return items
 
   // Strip the prefill prefixes so the catalog lookup matches against
   // the actual subject. "Replace Air Filter" → "Air Filter",
@@ -344,9 +345,28 @@ export async function enrichItemsWithCatalogPrices(items, { makeId, modelId } = 
       let best = null
       let bestScore = 99
       for (const term of searchTerms) {
-        const pool = item.type === 'Labor'
-          ? await searchLabor({ makeId, modelId, term })
-          : await searchPartsAndConsumables({ makeId, modelId, term })
+        let pool
+        if (item.type === 'Labor') {
+          // Try branch services first, fall back to Cavite catalog
+          if (branchCode) {
+            pool = await searchBranchLabor({ branchCode, term })
+          }
+          if (!pool || pool.length === 0) {
+            pool = Number.isFinite(makeId) && Number.isFinite(modelId)
+              ? await searchLabor({ makeId, modelId, term })
+              : []
+          }
+        } else {
+          // Try branch parts first, fall back to Cavite catalog
+          if (branchCode) {
+            pool = await searchBranchParts({ branchCode, term })
+          }
+          if (!pool || pool.length === 0) {
+            pool = Number.isFinite(makeId) && Number.isFinite(modelId)
+              ? await searchPartsAndConsumables({ makeId, modelId, term })
+              : []
+          }
+        }
         for (const cand of pool) {
           const score = scoreMatch(subject, cand.name)
           if (score > bestScore) { best = cand; bestScore = score }

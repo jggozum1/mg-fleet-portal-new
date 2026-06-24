@@ -793,6 +793,7 @@ function RevisionEditor({ quot, profile, onCancel, onSaved }) {
               canRemove={items.length > 1}
               vehicleMakeId={vehicleIds.makeId}
               vehicleModelId={vehicleIds.modelId}
+              branchCode={profile?.branch_code || profile?.branch}
             />
           ))}
         </div>
@@ -812,6 +813,7 @@ function RevisionEditor({ quot, profile, onCancel, onSaved }) {
                     canRemove={items.length > 1}
                     vehicleMakeId={vehicleIds.makeId}
                     vehicleModelId={vehicleIds.modelId}
+                    branchCode={profile?.branch_code || profile?.branch}
                   />
                 ))}
               </tbody>
@@ -945,6 +947,7 @@ function EditableItems({ quot, profile, onCancel, onSaved }) {
               showRevisionTag
               vehicleMakeId={vehicleIds.makeId}
               vehicleModelId={vehicleIds.modelId}
+              branchCode={profile?.branch_code || profile?.branch}
             />
           ))}
         </div>
@@ -964,6 +967,7 @@ function EditableItems({ quot, profile, onCancel, onSaved }) {
                     canRemove={items.length > 1}
                     vehicleMakeId={vehicleIds.makeId}
                     vehicleModelId={vehicleIds.modelId}
+                    branchCode={profile?.branch_code || profile?.branch}
                   />
                 ))}
               </tbody>

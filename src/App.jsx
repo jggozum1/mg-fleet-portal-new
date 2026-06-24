@@ -45,6 +45,8 @@ import FleetCompanies from './pages/admin/FleetCompanies'
 import Users from './pages/admin/Users'
 import VehicleCatalogIngest from './pages/admin/VehicleCatalogIngest'
 import CaviteCatalogIngest from './pages/admin/CaviteCatalogIngest'
+import BranchServicesIngest from './pages/admin/BranchServicesIngest'
+import BranchPartsIngest from './pages/admin/BranchPartsIngest'
 import AuthComplete from './pages/AuthComplete'
 import More from './pages/More'
 import LandingSignups from './pages/LandingSignups'
@@ -144,6 +146,8 @@ export default function App() {
           <Route path="/admin/users"            element={<ProtectedRoute requireAdmin><Users /></ProtectedRoute>} />
           <Route path="/admin/vehicle-catalog"  element={<ProtectedRoute requireAdmin><VehicleCatalogIngest /></ProtectedRoute>} />
           <Route path="/admin/cavite-catalog"   element={<ProtectedRoute requireAdmin><CaviteCatalogIngest /></ProtectedRoute>} />
+          <Route path="/admin/branch-services" element={<ProtectedRoute requireAdmin><BranchServicesIngest /></ProtectedRoute>} />
+          <Route path="/admin/branch-parts"    element={<ProtectedRoute requireAdmin><BranchPartsIngest /></ProtectedRoute>} />
 
           {/* Mobile More screen — overflow menu for the BottomNav */}
           <Route path="/more"                  element={<ProtectedRoute allowedCategories={BOTH}><More /></ProtectedRoute>} />

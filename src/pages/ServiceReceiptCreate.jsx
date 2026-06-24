@@ -206,6 +206,7 @@ export default function ServiceReceiptCreate({ kind = 'receipt' }) {
         const priced = await enrichItemsWithCatalogPrices(suggestions, {
           makeId: Number.isFinite(headerMakeId) ? headerMakeId : null,
           modelId: Number.isFinite(headerModelId) ? headerModelId : null,
+          branchCode: profile?.branch_code || profile?.branch || null,
         })
         if (cancelled) return
         const pricedCount = priced.filter((i) => Number(i.unitCost) > 0).length
@@ -221,7 +222,7 @@ export default function ServiceReceiptCreate({ kind = 'receipt' }) {
           ? ' Labor lines were derived per item (no labors declared on this assessment).'
           : ''
         const priceNote = pricedCount > 0
-          ? ` ${pricedCount} of ${priced.length} priced from the Cavite catalog — review the rest.`
+          ? ` ${pricedCount} of ${priced.length} priced from the branch catalog — review the rest.`
           : ' No catalog price matches — fill unit costs manually.'
         setPrefillBanner({
           tone: 'success',
@@ -379,6 +380,7 @@ export default function ServiceReceiptCreate({ kind = 'receipt' }) {
                 canRemove={items.length > 1}
                 vehicleMakeId={vehicleIds.makeId}
                 vehicleModelId={vehicleIds.modelId}
+                branchCode={profile?.branch_code || profile?.branch}
               />
             ))}
             <button
@@ -408,6 +410,7 @@ export default function ServiceReceiptCreate({ kind = 'receipt' }) {
                       canRemove={items.length > 1}
                       vehicleMakeId={vehicleIds.makeId}
                       vehicleModelId={vehicleIds.modelId}
+                      branchCode={profile?.branch_code || profile?.branch}
                     />
                   ))}
                 </tbody>

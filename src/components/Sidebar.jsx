@@ -65,6 +65,8 @@ function AdminSection({ profile }) {
       <Item to="/admin/users" label="Users" />
       <Item to="/admin/vehicle-catalog" label="Vehicle Catalog" />
       <Item to="/admin/cavite-catalog" label="Price Catalog" />
+      <Item to="/admin/branch-services" label="Branch Services" />
+      <Item to="/admin/branch-parts" label="Branch Parts" />
     </Section>
   )
 }

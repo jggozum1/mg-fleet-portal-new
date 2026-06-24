@@ -20,7 +20,7 @@ import Icon from './ui/Icon'
 export default function LineItemRow({
   row, onChange, onRemove, canRemove = true,
   showAddInRowAction = false, onAdd,
-  vehicleMakeId, vehicleModelId,
+  vehicleMakeId, vehicleModelId, branchCode,
 }) {
   const [showAuto, setShowAuto] = useState(false)
   const [suggestions, setSuggestions] = useState([])
@@ -31,7 +31,7 @@ export default function LineItemRow({
     const handle = setTimeout(async () => {
       try {
         const live = await searchSuggestions({
-          type: row.type, makeId: vehicleMakeId, modelId: vehicleModelId, term: row.description || '',
+          type: row.type, makeId: vehicleMakeId, modelId: vehicleModelId, term: row.description || '', branchCode,
         })
         if (cancelled) return
         if (live.length === 0 && row.description) {
@@ -52,7 +52,7 @@ export default function LineItemRow({
       }
     }, 200)
     return () => { cancelled = true; clearTimeout(handle) }
-  }, [row.type, row.description, vehicleMakeId, vehicleModelId])
+  }, [row.type, row.description, vehicleMakeId, vehicleModelId, branchCode])
 
   const pick = (p) => { onChange({ description: p.name, unitCost: p.unitCost || p.srp }); setShowAuto(false) }
 
@@ -89,12 +89,15 @@ export default function LineItemRow({
                   <span className="font-semibold text-gray-800">{p.name}</span>
                   <span className="font-mono text-[10px] text-gray-400">({p.code})</span>
                   <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                    p.source === 'service'    ? 'bg-sky-100 text-sky-800'
-                    : p.source === 'part'     ? 'bg-amber-100 text-amber-800'
+                    p.source === 'branch-service' || p.source === 'branch-part' ? 'bg-violet-100 text-violet-800'
+                    : p.source === 'service'    ? 'bg-sky-100 text-sky-800'
+                    : p.source === 'part'       ? 'bg-amber-100 text-amber-800'
                     : p.source === 'consumable' ? 'bg-emerald-100 text-emerald-800'
                     :                            'bg-gray-100 text-gray-600'
                   }`}>
-                    {p.source === 'consumable' ? 'Universal' : p.source}
+                    {p.source === 'branch-service' || p.source === 'branch-part' ? 'Branch'
+                      : p.source === 'consumable' ? 'Universal'
+                      : p.source}
                   </span>
                 </div>
                 {(p.makeName || p.modelName) && (
